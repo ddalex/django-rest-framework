@@ -1114,6 +1114,17 @@ class ModelSerializer(Serializer):
             # Create the serializer field.
             fields[field_name] = field_class(**field_kwargs)
 
+        # --- Proposed Fix Start ---
+        # Before updating with hidden_fields, ensure no declared field is overwritten.
+        # (declared_fields is available in this scope)
+        for field_name_declared in list(declared_fields.keys()): # Iterate over keys in case of modification
+            if field_name_declared in hidden_fields:
+                # If a declared field's name also appears in hidden_fields,
+                # it means the declared field should take precedence.
+                # Remove it from hidden_fields to prevent overwriting.
+                del hidden_fields[field_name_declared]
+        # --- Proposed Fix End ---
+
         # Add in any hidden fields.
         fields.update(hidden_fields)
 
